@@ -1,0 +1,18 @@
+{
+    "configurations": [
+        {
+            "name": "Build and Run",
+            "type": "cppvsdbg",
+            "request": "launch",
+            "program": "${workspaceFolder}\\bin\\Debug\\${workspaceFolderBasename}.exe",
+            "args": ["mpiexec ", "-n ", "4"],
+            "stopAtEntry": false,
+            "cwd": "C:/MinGW64/mingw64/bin",
+            "environment": [],
+            "console": "integratedTerminal",
+            "preLaunchTask": "C Build MPI parallel",
+            "postDebugTask": "C Run MPI parallel"
+        }
+    ],
+    "version": "2.0.0"
+}
