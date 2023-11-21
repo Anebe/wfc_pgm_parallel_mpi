@@ -1,7 +1,11 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <mpi.h>
+#include "pgm.h"
 #include "wfc.h"
+#include "tile.h"
+
+#include "cJSON.h"
 
 MPI_Datatype createCellType(int length_totalEntropy) {
 
@@ -20,7 +24,7 @@ MPI_Datatype createCellType(int length_totalEntropy) {
     return cellType;
 }
 
-void findLowestEntropy(World world, Tileset tileset, int *lowXResult, int *lowYResult)
+void findLowestEntropy_MPI(World world, Tileset tileset, int *lowXResult, int *lowYResult)
 {
     int lowEntropy = tileset->qtd;
     int lowX = 0;
@@ -55,67 +59,25 @@ void findLowestEntropy(World world, Tileset tileset, int *lowXResult, int *lowYR
             }
         }
     }
-    *lowXResult = lowX;
-    *lowYResult = lowY;
+    printf("%d %d %d\n", lowEntropy, lowX, lowY);
+    
+    int global_lowEntropy;
+    MPI_Reduce(&lowEntropy, &global_lowEntropy, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&lowX, &lowXResult, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+    MPI_Reduce(&lowY, &lowYResult, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
+    
+    if(rank == 0){
+        printf("%d %d %d\n", global_lowEntropy, lowXResult, lowYResult);
+    }
 }
-
-typedef struct {
-    int value;
-    int location;
-} MaxLoc;
 
 
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
-
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
-    // Número de elementos por processo
-    const int elements_per_process = 5;
-
-    // Array local em cada processo
-    int local_data[elements_per_process];
-    for (int i = 0; i < elements_per_process; ++i) {
-        local_data[i] = (rank + 1) * 10 - i; // Dados de exemplo
-        
-        //printf("%d ", local_data[i]);
-    }
-    printf("\n");
-    // Encontrar o menor valor local e seu índice
-    int min_value = INT_MAX;
-    int min_index = -1;
-
-    for (int i = 0; i < elements_per_process; ++i) {
-        if (local_data[i] < min_value) {
-            min_value = local_data[i];
-            min_index = i + rank * elements_per_process; // Ajusta o índice para levar em conta o deslocamento
-        }
-    }
-    int a[] = {min_index, min_value};
-    int global_max[2];
-    MPI_Reduce(a, global_max, 1, MPI_2INT, MPI_MINLOC, 0, MPI_COMM_WORLD);
-    // Somente o processo raiz imprime o resultado
-    if (rank == 0) {
-        printf("min global: %d na localização: %d\n", global_max[1], global_max[0]);
-    }
-    /*
-    // Variáveis para armazenar o menor valor global e seu índice
-    int global_min_value;
-    int global_min_index;
-
-    // Reduce para encontrar o menor valor global
-    MPI_Reduce(&min_value, &global_min_value, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
-    MPI_Reduce(&min_index, &global_min_index, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
-
-    // Somente o processo raiz imprime o resultado
-    if (rank == 0) {
-        printf("Menor valor global: %d no índice: %d\n", global_min_value, global_min_index);
-    }
-    */
-
+    Tileset t = open_tileset("tileset/short line.txt");
+    World w = new_world(15, 15, t->qtd);
+    int a,b;
+    findLowestEntropy_MPI(w, t, &a, &b);
     MPI_Finalize();
-
     return 0;
 }

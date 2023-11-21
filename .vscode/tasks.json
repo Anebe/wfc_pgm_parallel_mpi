@@ -3,12 +3,13 @@
         {
             "type": "cppbuild",
             "label": "Build",
-            "command": "C:/MinGW64/mingw64/bin/gcc.exe",
+            "command": "C:/mingw64/bin/gcc.exe",
             "args": [
                 "-fdiagnostics-color=always",
                 "-g",
-                "-I\"C:/Program Files (x86)/Microsoft SDKs/MPI/Include\"",
-                "${file}",
+                "-I \"C:/Program Files (x86)/Microsoft SDKs/MPI/Include\"",
+                //"${file}",
+                "${workspaceFolder}/*.c",
                 "-o",
                 "${workspaceFolder}\\bin\\Debug\\${workspaceFolderBasename}.exe",
                 "-L\"C:/Program Files (x86)/Microsoft SDKs/MPI/Lib/x64\"",
@@ -17,7 +18,7 @@
                 "-lmsmpifmc"
             ],
             "options": {
-                "cwd": "C:/MinGW64/mingw64/bin"
+                "cwd": "C:/mingw64/bin"
             },
             "problemMatcher": [
                 "$gcc"
