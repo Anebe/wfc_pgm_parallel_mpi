@@ -62,144 +62,82 @@ void findLowestEntropy(World world, Tileset tileset, int *lowXResult, int *lowYR
             }
         }
     }
+    *lowXResult = lowX;
+    *lowYResult = lowY;
 }
-/*
-void findLowestEntropy(World world, Tileset tileset, int *lowXResult, int *lowYResult)
-{
-    int lowEntropyPublic = tileset->qtd;
 
-    #pragma omp parallel
-    {
-        int lowEntropy = tileset->qtd;
-        int lowX = 0;
-        int lowY = 0;
-        int const height = world->height;
-        int const width = world->width;
-
-        #pragma omp for collapse(2) nowait
-        for (int y = 0; y < height; y++)
-        {
-            for (int x = 0; x < width; x++)
-            {
-                if(world->map[y][x].collapsedValue == -1 &&
-                world->map[y][x].totalEntropy < lowEntropy &&
-                world->map[y][x].totalEntropy != 0){
-                    lowEntropy = world->map[y][x].totalEntropy;
-                    lowX = x;
-                    lowY = y;
-                }
-            }
-        }
-
-        #pragma omp critical
-        {
-            if(lowEntropyPublic > lowEntropy)
-            {
-                lowEntropyPublic = lowEntropy;
-                *lowXResult = lowX;
-                *lowYResult = lowY;
-            }
-        }
-    }
-}
-*/
 void propagateCollapse(const int collapseTarget, const int y, const int x, World world, const Tileset tileset)
 {
     const int size = tileset->size;
-    #pragma omp parallel sections
+
+    if (y-1 >= 0 && world->map[y-1][x].collapsedValue == -1)
     {
-        #pragma omp section
+        Cell *top = &world->map[y-1][x];
+
+        for (int i = 0; i < tileset->qtd; i++)
         {
-            if (y-1 >= 0 && world->map[y-1][x].collapsedValue == -1)
+            for (int j = 0; j < tileset->size; j++)
             {
-                Cell *top = &world->map[y-1][x];
-
-                
-                for (int i = 0; i < tileset->qtd; i++)
-                {
-                    for (int j = 0; j < tileset->size; j++)
-                    {
-                        int isNotCombine = tileset->tile[i][size-1][j] != tileset->tile[collapseTarget][0][j];
-                        #pragma omp atomic update
-                        top->totalEntropy -= isNotCombine && top->options[i];
-                        #pragma omp atomic write
-                        top->options[i] = top->options[i] ? !(isNotCombine) : 0;
-                    }
-                }
-
+                int isNotCombine = tileset->tile[i][size-1][j] != tileset->tile[collapseTarget][0][j];
+                top->totalEntropy -= isNotCombine && top->options[i];
+                top->options[i] = top->options[i] ? !(isNotCombine) : 0;
             }
-
         }
 
-        #pragma omp section
-        {
-            if (y+1 < world->height && world->map[y+1][x].collapsedValue == -1)
-            {
-                Cell *down =  &world->map[y+1][x];
+    }
 
-                
-                for (int i = 0; i < tileset->qtd; i++)
-                {
-                    for (int j = 0; j < tileset->size; j++)
-                    {
-                        int isNotCombine = tileset->tile[i][0][j] != tileset->tile[collapseTarget][size-1][j];
-                        #pragma omp atomic update
-                        down->totalEntropy -= isNotCombine && down->options[i];
-                        #pragma omp atomic write
-                        down->options[i] = down->options[i]? !(isNotCombine) : 0;
-                    }
-                }
 
-            }
+    if (y+1 < world->height && world->map[y+1][x].collapsedValue == -1)
+    {
+        Cell *down =  &world->map[y+1][x];
 
-        }
         
-        #pragma omp section
+        for (int i = 0; i < tileset->qtd; i++)
         {
-            if (x-1 >= 0 && world->map[y][x-1].collapsedValue == -1)
+            for (int j = 0; j < tileset->size; j++)
             {
-                Cell *left = &world->map[y][x-1];
-
-                
-                for (int i = 0; i < tileset->qtd; i++)
-                {
-                    for (int j = 0; j < tileset->size; j++)
-                    {
-                        int isNotCombine = tileset->tile[i][j][size-1] != tileset->tile[collapseTarget][j][0];
-                        #pragma omp atomic update
-                        left->totalEntropy -= isNotCombine && left->options[i];
-                        #pragma omp atomic write
-                        left->options[i] = left->options[i] ? !(isNotCombine) : 0;
-                    }
-                }
-
+                int isNotCombine = tileset->tile[i][0][j] != tileset->tile[collapseTarget][size-1][j];
+                down->totalEntropy -= isNotCombine && down->options[i];
+                down->options[i] = down->options[i]? !(isNotCombine) : 0;
             }
-
         }
+
+    }
+
+
+    if (x-1 >= 0 && world->map[y][x-1].collapsedValue == -1)
+    {
+        Cell *left = &world->map[y][x-1];
+
         
-        #pragma omp section
+        for (int i = 0; i < tileset->qtd; i++)
         {
-            if (x+1 < world->width && world->map[y][x+1].collapsedValue == -1)
+            for (int j = 0; j < tileset->size; j++)
             {
-                Cell *right = &world->map[y][x+1];
-
-                
-                for (int i = 0; i < tileset->qtd; i++)
-                {
-                    for (int j = 0; j < tileset->size; j++)
-                    {
-                        int isNotCombine = tileset->tile[i][j][0] != tileset->tile[collapseTarget][j][size-1];
-                        #pragma omp atomic update
-                        right->totalEntropy -= isNotCombine && right->options[i];
-                        #pragma omp atomic write
-                        right->options[i] = right->options[i] ? !(isNotCombine) : 0;
-                    }
-                }
-
+                int isNotCombine = tileset->tile[i][j][size-1] != tileset->tile[collapseTarget][j][0];
+                left->totalEntropy -= isNotCombine && left->options[i];
+                left->options[i] = left->options[i] ? !(isNotCombine) : 0;
             }
-
         }
+
+    }
+
+
+    if (x+1 < world->width && world->map[y][x+1].collapsedValue == -1)
+    {
+        Cell *right = &world->map[y][x+1];
+
         
+        for (int i = 0; i < tileset->qtd; i++)
+        {
+            for (int j = 0; j < tileset->size; j++)
+            {
+                int isNotCombine = tileset->tile[i][j][0] != tileset->tile[collapseTarget][j][size-1];
+                right->totalEntropy -= isNotCombine && right->options[i];
+                right->options[i] = right->options[i] ? !(isNotCombine) : 0;
+            }
+        }
+
     }
 
 }
@@ -219,7 +157,6 @@ void collapse(World world, Tileset tileset)
     int *entropyPossibility = (int *) malloc(sizeof(int) * lowestTotalEntropy);
     int index = 0;
 
-    #pragma omp parallel for
     for (int j = 0; j < tileset->qtd; j++)
     {
         if(world->map[lowestY][lowestX].options[j] == 1){
@@ -230,27 +167,24 @@ void collapse(World world, Tileset tileset)
     int collapseValue = entropyPossibility[rand() % lowestTotalEntropy];
     free(entropyPossibility);
 
-    #pragma omp parallel
-    {
+
         int priv_x = lowestX;
         int priv_y = lowestY;
         Cell *map = &world->map[priv_y][priv_x];
         int priv_qtd = tileset->qtd;
 
-        #pragma omp for simd nowait
         for (int i = 0; i < priv_qtd; i++)
         {
             map->options[i] = 0;
         }
 
-        #pragma omp single
-        {
-            map->options[collapseValue] = 1;
-            map->collapsedValue = collapseValue;
-            map->totalEntropy = 1;
-        }
+        
+        map->options[collapseValue] = 1;
+        map->collapsedValue = collapseValue;
+        map->totalEntropy = 1;
+        
 
-    }
+    
     propagateCollapse(collapseValue, lowestY, lowestX, world, tileset);
 }
 
