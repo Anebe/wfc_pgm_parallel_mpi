@@ -12,10 +12,44 @@
 
 #define MAX_THREADS 8
 #define MIN_THREADS 1
-#define MAX_SIZE_CELL 140
+#define MAX_SIZE_CELL 10
 #define QTD_RESULT 1
 #define REPEAT 1
 
+int get_height_world_by_rank(){
+    int rank,size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+    
+    int rows_per_process = MAX_SIZE_CELL / size;
+    int remaining_rows = MAX_SIZE_CELL % size;
+
+    if(rank == size-1){
+        rows_per_process += remaining_rows;
+    }
+
+    return rows_per_process;
+}
+
+World combine_process(World world, Tileset tileset){
+    
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    if(rank == 0){
+        World w = new_world(MAX_SIZE_CELL, MAX_SIZE_CELL, tileset->qtd);
+        for (int y = 0; y < world->height; y++)
+        {
+            for (int x = 0; x < world->width; x++)
+            {
+                /* code */
+            }
+            
+        }
+        
+    }
+}
 
 void all_to_zero(World w, int qtd_tileset){
     int rank,size;
@@ -101,7 +135,6 @@ int main(int argc, char **argv)
     MPI_Comm_size(MPI_COMM_WORLD, &size);
 
     srand(time(NULL) + rank);
-    //srand((unsigned int)time(NULL));
 
     double start_time, end_time;
     //cJSON *rootArray = cJSON_CreateArray();
@@ -125,24 +158,25 @@ int main(int argc, char **argv)
         
         for(int k = 0; k < REPEAT; k++)
         {
-            World w = new_world(i, i, t->qtd);
+            int height = get_height_world_by_rank();
+            World w = new_world(height, i, t->qtd);
             //------------------------------------------------
             start_time = MPI_Wtime();
             waveFuctionCollapse(t, w);
-            all_to_all(w, t);
+            //all_to_all(w, t);
             end_time = MPI_Wtime();
             //------------------------------------------------
-            if(rank == 0){
+            //if(rank == 0){
                 Pgm p = convertWfc(w, t);
                 char *name = malloc(sizeof(char) * 100);
-                sprintf(name, "result/imagem/wfc(C-%dx%d)(Rank-%d)(R-%d).pgm", i, i, rank, k);
+                sprintf(name, "result/imagem/wfc(C-%dx%d)(R-%d).pgm", i, i, k);
                 pgm_file(name, p);
           
                 free_pgm(p);
                 free(name);
                 double total_time = end_time - start_time;
                 printf("Cell(%dx%d)\ntentativa:%d\ntempo:%lf\n\n",i,i,k, total_time);
-            }
+            //}
             //free_world(w);
             
             //cJSON *time = cJSON_CreateNumber(total_time);

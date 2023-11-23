@@ -43,29 +43,13 @@ void free_world(World world)
 
 void findLowestEntropy(World world, Tileset tileset, int *lowXResult, int *lowYResult)
 {
-    int rank, size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-
     int height = world->height;
     int width = world->width;
-    
-    // Calcula quantas linhas cada processo receberá
-    int rows_per_process = height / size;
-    int remaining_rows = height % size;
-
-    int initial_row = rows_per_process * rank;
-    int final_row = rows_per_process * (rank+1);
-    if(rank == size-1){
-        initial_row = (rows_per_process) * rank;
-        final_row = height;
-    }
-   
     int lowEntropy = tileset->qtd;
     int lowX = 0;
-    int lowY = initial_row;
+    int lowY = 0;
 
-    for (int y = initial_row; y < final_row; y++)
+    for (int y = 0; y < height; y++)
     {
         for (int x = 0; x < width; x++)
         {
@@ -87,72 +71,81 @@ void propagateCollapse(const int collapseTarget, const int y, const int x, World
 {
     const int size = tileset->size;
 
-    if (y-1 >= 0 && world->map[y-1][x].collapsedValue == -1)
-    {
-        Cell *top = &world->map[y-1][x];
-
-        for (int i = 0; i < tileset->qtd; i++)
+    if(x >= 0 && x < world->width){
+        if (y-1 >= 0)
         {
-            for (int j = 0; j < tileset->size; j++)
-            {
-                int isNotCombine = tileset->tile[i][size-1][j] != tileset->tile[collapseTarget][0][j];
-                top->totalEntropy -= isNotCombine && top->options[i];
-                top->options[i] = top->options[i] ? !(isNotCombine) : 0;
+            if(world->map[y-1][x].collapsedValue == -1){
+                Cell *top = &world->map[y-1][x];
+
+                for (int i = 0; i < tileset->qtd; i++)
+                {
+                    for (int j = 0; j < tileset->size; j++)
+                    {
+                        int isNotCombine = tileset->tile[i][size-1][j] != tileset->tile[collapseTarget][0][j];
+                        top->totalEntropy -= isNotCombine && top->options[i];
+                        top->options[i] = top->options[i] ? !(isNotCombine) : 0;
+                    }
+                }
+            }
+
+        }
+
+        if (y+1 < world->height)
+        {
+            if(world->map[y+1][x].collapsedValue == -1){
+
+            
+                Cell *down =  &world->map[y+1][x];
+
+
+                for (int i = 0; i < tileset->qtd; i++)
+                {
+                    for (int j = 0; j < tileset->size; j++)
+                    {
+                        int isNotCombine = tileset->tile[i][0][j] != tileset->tile[collapseTarget][size-1][j];
+                        down->totalEntropy -= isNotCombine && down->options[i];
+                        down->options[i] = down->options[i]? !(isNotCombine) : 0;
+                    }
+                }
             }
         }
 
     }
 
-
-    if (y+1 < world->height && world->map[y+1][x].collapsedValue == -1)
-    {
-        Cell *down =  &world->map[y+1][x];
-
-
-        for (int i = 0; i < tileset->qtd; i++)
+    if(y >= 0 && y < world->height){
+        if (x-1 >= 0 && world->map[y][x-1].collapsedValue == -1)
         {
-            for (int j = 0; j < tileset->size; j++)
+            Cell *left = &world->map[y][x-1];
+
+
+            for (int i = 0; i < tileset->qtd; i++)
             {
-                int isNotCombine = tileset->tile[i][0][j] != tileset->tile[collapseTarget][size-1][j];
-                down->totalEntropy -= isNotCombine && down->options[i];
-                down->options[i] = down->options[i]? !(isNotCombine) : 0;
+                for (int j = 0; j < tileset->size; j++)
+                {
+                    int isNotCombine = tileset->tile[i][j][size-1] != tileset->tile[collapseTarget][j][0];
+                    left->totalEntropy -= isNotCombine && left->options[i];
+                    left->options[i] = left->options[i] ? !(isNotCombine) : 0;
+                }
             }
+
         }
 
-    }
 
-
-    if (x-1 >= 0 && world->map[y][x-1].collapsedValue == -1)
-    {
-        Cell *left = &world->map[y][x-1];
-
-
-        for (int i = 0; i < tileset->qtd; i++)
+        if (x+1 < world->width && world->map[y][x+1].collapsedValue == -1)
         {
-            for (int j = 0; j < tileset->size; j++)
+            Cell *right = &world->map[y][x+1];
+
+
+            for (int i = 0; i < tileset->qtd; i++)
             {
-                int isNotCombine = tileset->tile[i][j][size-1] != tileset->tile[collapseTarget][j][0];
-                left->totalEntropy -= isNotCombine && left->options[i];
-                left->options[i] = left->options[i] ? !(isNotCombine) : 0;
+                for (int j = 0; j < tileset->size; j++)
+                {
+                    int isNotCombine = tileset->tile[i][j][0] != tileset->tile[collapseTarget][j][size-1];
+                    right->totalEntropy -= isNotCombine && right->options[i];
+                    right->options[i] = right->options[i] ? !(isNotCombine) : 0;
+                }
             }
-        }
 
-    }
-
-
-    if (x+1 < world->width && world->map[y][x+1].collapsedValue == -1)
-    {
-        Cell *right = &world->map[y][x+1];
-
-
-        for (int i = 0; i < tileset->qtd; i++)
-        {
-            for (int j = 0; j < tileset->size; j++)
-            {
-                int isNotCombine = tileset->tile[i][j][0] != tileset->tile[collapseTarget][j][size-1];
-                right->totalEntropy -= isNotCombine && right->options[i];
-                right->options[i] = right->options[i] ? !(isNotCombine) : 0;
-            }
         }
 
     }
@@ -201,7 +194,7 @@ void collapse(World world, Tileset tileset)
 void waveFuctionCollapse(Tileset tileset, World world)
 {
     make_border(world, tileset);
-    all_to_all(world, tileset);
+    //all_to_all(world, tileset);
     for (int i = 0; i < world->height * world->width; i++)
     {
         collapse(world, tileset);
@@ -209,21 +202,12 @@ void waveFuctionCollapse(Tileset tileset, World world)
 }
 
 void make_border(World world, Tileset tileset){
+    
     int rank,size;
     MPI_Comm_rank(MPI_COMM_WORLD, &rank);
     MPI_Comm_size(MPI_COMM_WORLD, &size);
-    
-    int rows_per_process = world->height / size;
-    int remaining_rows = world->height % size;
 
-    int initial_row = rows_per_process * rank;
-    int final_row = rows_per_process * (rank+1);
-    if(rank == size-1){
-        initial_row = (rows_per_process) * rank;
-        final_row = world->height;
-    }
-
-    int y = initial_row;
+    int y = 0;
     for (int x = 0; x < world->width; x++)
     {
         int lowestTotalEntropy = world->map[y][x].totalEntropy;
@@ -253,9 +237,18 @@ void make_border(World world, Tileset tileset){
         map->totalEntropy = 1;
 
         propagateCollapse(collapseValue, y, x, world, tileset);
+        int other_collapseValue = -1;
+
+        if(rank > 0)
+            MPI_Send(&collapseValue, 1, MPI_INT, rank - 1, 0, MPI_COMM_WORLD);
+        if(rank < size - 1)
+            MPI_Recv(&other_collapseValue, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
+        if(other_collapseValue != -1 && rank < size - 1){
+            propagateCollapse(other_collapseValue, world->height, x, world, tileset);
+        }
+        
+        
     }
-    //FALTA TODOS COMPARTILHAREM AS BORDAS ENTRE SI;
-    
 }
 
 void all_to_all(World w, Tileset tileset){
