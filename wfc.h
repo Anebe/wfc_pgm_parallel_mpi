@@ -12,7 +12,7 @@
 #define MAX_ATTEMPTS 100
 
 typedef struct Cell {
-    unsigned char *options;
+    int  *options;
     short int collapsedValue;
     int totalEntropy;
 } Cell;
@@ -34,5 +34,5 @@ void print_world(World);
 void free_world(World);
 Pgm convertWfc(World , Tileset );
 void make_border(World , Tileset );
-void all_to_all(World , int );
+void all_to_all(World , Tileset );
 #endif

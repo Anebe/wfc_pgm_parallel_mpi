@@ -12,27 +12,9 @@
 
 #define MAX_THREADS 8
 #define MIN_THREADS 1
-#define MAX_SIZE_CELL 10
+#define MAX_SIZE_CELL 140
 #define QTD_RESULT 1
 #define REPEAT 1
-
-
-MPI_Datatype createCellType(int length_totalEntropy) {
-
-    MPI_Datatype cellType;
-    int blocklengths[3] = {length_totalEntropy, 1, 1};
-    MPI_Aint offsets[3];
-    MPI_Datatype types[3] = {MPI_UNSIGNED_CHAR, MPI_SHORT, MPI_INT};
-
-    offsets[0] = offsetof(Cell, options);
-    offsets[1] = offsetof(Cell, collapsedValue);
-    offsets[2] = offsetof(Cell, totalEntropy);
-
-    MPI_Type_create_struct(3, blocklengths, offsets, types, &cellType);
-    MPI_Type_commit(&cellType);
-
-    return cellType;
-}
 
 
 void all_to_zero(World w, int qtd_tileset){
@@ -147,10 +129,10 @@ int main(int argc, char **argv)
             //------------------------------------------------
             start_time = MPI_Wtime();
             waveFuctionCollapse(t, w);
+            all_to_all(w, t);
             end_time = MPI_Wtime();
             //------------------------------------------------
-            all_to_all(w, t->qtd);
-            //if(rank == 0){
+            if(rank == 0){
                 Pgm p = convertWfc(w, t);
                 char *name = malloc(sizeof(char) * 100);
                 sprintf(name, "result/imagem/wfc(C-%dx%d)(Rank-%d)(R-%d).pgm", i, i, rank, k);
@@ -160,7 +142,7 @@ int main(int argc, char **argv)
                 free(name);
                 double total_time = end_time - start_time;
                 printf("Cell(%dx%d)\ntentativa:%d\ntempo:%lf\n\n",i,i,k, total_time);
-            //}
+            }
             //free_world(w);
             
             //cJSON *time = cJSON_CreateNumber(total_time);
