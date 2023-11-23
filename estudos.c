@@ -7,22 +7,7 @@
 
 #include "cJSON.h"
 
-MPI_Datatype createCellType(int length_totalEntropy) {
 
-    MPI_Datatype cellType;
-    int blocklengths[3] = {length_totalEntropy, 1, 1};
-    MPI_Aint offsets[3];
-    MPI_Datatype types[3] = {MPI_UNSIGNED_CHAR, MPI_SHORT, MPI_INT};
-
-    offsets[0] = offsetof(Cell, options);
-    offsets[1] = offsetof(Cell, collapsedValue);
-    offsets[2] = offsetof(Cell, totalEntropy);
-
-    MPI_Type_create_struct(3, blocklengths, offsets, types, &cellType);
-    MPI_Type_commit(&cellType);
-
-    return cellType;
-}
 
 void findLowestEntropy_MPI(World world, Tileset tileset, int *lowXResult, int *lowYResult)
 {
@@ -60,18 +45,15 @@ void findLowestEntropy_MPI(World world, Tileset tileset, int *lowXResult, int *l
         }
     }
     printf("%d %d %d\n", lowEntropy, lowX, lowY);
-    
+
     int global_lowEntropy;
     MPI_Reduce(&lowEntropy, &global_lowEntropy, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(&lowX, &lowXResult, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
     MPI_Reduce(&lowY, &lowYResult, 1, MPI_INT, MPI_MIN, 0, MPI_COMM_WORLD);
-    
-    if(rank == 0){
-        printf("%d %d %d\n", global_lowEntropy, lowXResult, lowYResult);
-    }
+
 }
 
-
+/*
 int main(int argc, char **argv) {
     MPI_Init(&argc, &argv);
     Tileset t = open_tileset("tileset/short line.txt");
@@ -81,3 +63,4 @@ int main(int argc, char **argv) {
     MPI_Finalize();
     return 0;
 }
+*/

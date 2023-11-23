@@ -2,6 +2,7 @@
     "files.associations": {
         "cjson.h": "c",
         "tile.h": "c",
-        "wfc.h": "c"
+        "wfc.h": "c",
+        "type_traits": "c"
     }
 }

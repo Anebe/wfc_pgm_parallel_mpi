@@ -1,0 +1,66 @@
+# depslib dependency file v1.0
+1696537827 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\cjson.c
+	<string.h>
+	<stdio.h>
+	<math.h>
+	<stdlib.h>
+	<limits.h>
+	<ctype.h>
+	<float.h>
+	<locale.h>
+	"cJSON.h"
+
+1695645790 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\cjson.h
+	<stddef.h>
+
+1700679887 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\estudos.c
+	<stdio.h>
+	<stdlib.h>
+	<mpi.h>
+	"pgm.h"
+	"wfc.h"
+	"tile.h"
+	"cJSON.h"
+
+1685582024 c:\program files (x86)\microsoft sdks\mpi\include\mpi.h
+	<stdint.h>
+	<sal.h>
+	<stdint.h>
+
+1700501498 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\pgm.h
+	<stdio.h>
+	<stdlib.h>
+	<string.h>
+	<mpi.h>
+
+1700689920 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.h
+	<stdio.h>
+	<stdlib.h>
+	<stdbool.h>
+	<mpi.h>
+	"pgm.h"
+	"tile.h"
+
+1700501526 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\tile.h
+	<stdio.h>
+	<stdlib.h>
+	<mpi.h>
+
+1700679694 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\main.c
+	<stdio.h>
+	<stdlib.h>
+	<time.h>
+	<mpi.h>
+	"pgm.h"
+	"wfc.h"
+	"tile.h"
+
+1697472524 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\pgm.c
+	"pgm.h"
+
+1697313446 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\tile.c
+	"tile.h"
+
+1700679869 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.c
+	"wfc.h"
+

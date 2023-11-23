@@ -37,9 +37,28 @@
 		<Compiler>
 			<Add option="-Wall" />
 		</Compiler>
+		<Unit filename="cJSON.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="cJSON.h" />
+		<Unit filename="estudos.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="pgm.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="pgm.h" />
+		<Unit filename="tile.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="tile.h" />
+		<Unit filename="wfc.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="wfc.h" />
 		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

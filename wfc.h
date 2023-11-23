@@ -33,5 +33,6 @@ void waveFuctionCollapse(Tileset, World);
 void print_world(World);
 void free_world(World);
 Pgm convertWfc(World , Tileset );
-
+void make_border(World , Tileset );
+void all_to_all(World , int );
 #endif
