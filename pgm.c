@@ -43,14 +43,12 @@ void pgm_file(char *path, Pgm pgm)
     else
         arq = fopen(path, "a");
     
-    MPI_Barrier(MPI_COMM_WORLD);
     int max_gray = higher_number(pgm);
 
     if(arq != NULL)
     {
-        int sum_height;//, common_height = pgm->height;
+        int sum_height;
         MPI_Allreduce(&pgm->height, &sum_height, 1, MPI_INT, MPI_SUM, MPI_COMM_WORLD);
-        //MPI_Bcast(&common_height, 1, MPI_INT, 0, MPI_COMM_WORLD);
         if(rank == 0)
             fprintf(arq, "P2\n%d %d\n%d\n", sum_height, pgm->width, max_gray);
 
@@ -77,10 +75,47 @@ void pgm_file(char *path, Pgm pgm)
             }
             MPI_Barrier(MPI_COMM_WORLD);
         }
-        
-        
     }
+}
 
+void pgm_files(char *path, Pgm pgm)
+{
+    
+    int rank, size;
+    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
+    MPI_Comm_size(MPI_COMM_WORLD, &size);
+
+    FILE *arq;
+
+    arq = fopen(path, "w");
+    int max_gray = higher_number(pgm);
+    if(arq != NULL)
+    {
+        fprintf(arq, "P2\n%d %d\n%d\n", pgm->width, pgm->height, max_gray);
+
+        for (int k = 0; k < size; k++)
+        {
+            if(rank == k)
+            {
+                for (int i = 0; i < pgm->height; i++)
+                {
+                    for (int j = 0; j < pgm->width; j++)
+                    {
+                        fprintf(arq, "%d", pgm->data[i][j]);
+                        if(j != pgm->width-1)
+                            fprintf(arq, " ");
+
+                    }
+                    if(i != pgm->height-1)
+                    {
+                        fprintf(arq, "\n");
+                    }
+                }
+                fprintf(arq, "\n");
+                fclose(arq);
+            }
+        }
+    }
 }
 
 void printPgm(Pgm pgm)

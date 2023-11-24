@@ -31,7 +31,7 @@
             "type": "cppbuild",
             "command": "C:/Program Files/Microsoft MPI/Bin/mpiexec.exe",
             "args": [
-                "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}"
+                "-n", "2", "${workspaceFolder}/bin/Debug/${workspaceFolderBasename}"
             ],
             "group": {
                 "kind": "none",

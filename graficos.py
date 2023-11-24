@@ -11,14 +11,14 @@ def calc_media(times):
 
 def media_aritmetica(dados):
     for conjunto in dados:
-        threads = [r["threads"] for r in conjunto["result"]]
+        processos = [r["processos"] for r in conjunto["result"]]
         times = [r["time"] for r in conjunto["result"]]
 
         media_aritmetica = calc_media(times)
             
-        plt.plot(threads, media_aritmetica, marker='o', linestyle='-')
+        plt.plot(processos, media_aritmetica, marker='o', linestyle='-')
         plt.title('Média Aritmética')
-        plt.xlabel('Número de Threads')
+        plt.xlabel('Número de processos')
         plt.ylabel('Média')
         plt.grid(True)
         
@@ -27,7 +27,7 @@ def media_aritmetica(dados):
 
 def desvio_padrao(dados):
     for conjunto in dados:
-        threads = [r["threads"] for r in conjunto["result"]]
+        processos = [r["processos"] for r in conjunto["result"]]
         times = [r["time"] for r in conjunto["result"]]
 
         media_aritmetica = calc_media(times)
@@ -35,7 +35,7 @@ def desvio_padrao(dados):
         for time in times:
             desvio_padrao.append(np.std(time))
         
-        plt.errorbar(x=threads, 
+        plt.errorbar(x=processos, 
                      y=media_aritmetica, 
                      yerr=desvio_padrao,
                      ecolor='r',
@@ -43,13 +43,13 @@ def desvio_padrao(dados):
                      label="Desvio padrâo",
                      capsize=5, elinewidth=2, markeredgewidth=2,
                      zorder=1)
-        plt.scatter(x=threads,
+        plt.scatter(x=processos,
                 y=media_aritmetica,
                 label="Média Aritmética",
                 zorder=2)
 
         plt.title('Desvio Padrão')
-        plt.xlabel('Número de Threads')
+        plt.xlabel('Número de processos')
         plt.ylabel('Média Aritmética')
         plt.grid(False)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Legendas")
@@ -66,17 +66,17 @@ def calc_speedup(times):
 
 def grafico_speedup(dados):
     for conjunto in dados:
-        threads = [r["threads"] for r in conjunto["result"]]
+        processos = [r["processos"] for r in conjunto["result"]]
         times = [r["time"] for r in conjunto["result"]]
 
         speedups = calc_speedup(times)
 
         for i, speedup in enumerate(speedups):
             legenda = f'Execução {i+1}°'
-            plt.plot(threads, speedup, marker='o', linestyle='-', label=legenda)
+            plt.plot(processos, speedup, marker='o', linestyle='-', label=legenda)
 
         plt.title('Gráfico de Speedup')
-        plt.xlabel('Número de Threads')
+        plt.xlabel('Número de processos')
         plt.ylabel('Speedup')
         plt.grid(True)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Legendas")
@@ -85,19 +85,19 @@ def grafico_speedup(dados):
 
 def grafico_eficiencia(dados):
     for conjunto in dados:
-        threads = [r["threads"] for r in conjunto["result"]]
+        processos = [r["processos"] for r in conjunto["result"]]
         times = [r["time"] for r in conjunto["result"]]
         
         # Calcular o speedup
         speedups = calc_speedup(times)
         #
         for i, speedup in enumerate(speedups):
-            efficiency = [mono_speedup / t for mono_speedup, t in zip(speedup, threads)]
+            efficiency = [mono_speedup / t for mono_speedup, t in zip(speedup, processos)]
             legenda = f'Execução {i+1}°'
-            plt.plot(threads, efficiency, marker='o', linestyle='-', label=legenda)
+            plt.plot(processos, efficiency, marker='o', linestyle='-', label=legenda)
 
         plt.title('Gráfico de Eficiência')
-        plt.xlabel('Número de Threads')
+        plt.xlabel('Número de processos')
         plt.ylabel('Eficiência')
         plt.grid(True)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Legendas")
@@ -106,19 +106,19 @@ def grafico_eficiencia(dados):
 
 def grafico_thread_tempo(dados):
     for conjunto in dados:
-        threads = [item["threads"] for item in conjunto["result"]]
+        processos = [item["processos"] for item in conjunto["result"]]
         tempos = [item["time"] for item in conjunto["result"]]
 
         times_invert = list(map(list, zip(*tempos)))
 
         for i, time in enumerate(times_invert):
             legenda = f'Execução {i+1}°'
-            plt.plot(threads, time, marker='o', linestyle='-', label=legenda)
+            plt.plot(processos, time, marker='o', linestyle='-', label=legenda)
 
 
 
-        plt.title(f'Número de Threads vs Tempo em Célula({conjunto["cell_height"]}x{conjunto["cell_width"]})')
-        plt.xlabel('Número de Threads')
+        plt.title(f'Número de processos vs Tempo em Célula({conjunto["cell_height"]}x{conjunto["cell_width"]})')
+        plt.xlabel('Número de processos')
         plt.ylabel('Tempo (segundos)')
         plt.grid(True)
         plt.legend(loc='center left', bbox_to_anchor=(1, 0.5), title="Legendas")
@@ -127,33 +127,33 @@ def grafico_thread_tempo(dados):
 
 def grafico_dispercao(dados):
     for conjunto in dados:
-        threads = [item["threads"] for item in conjunto["result"]]
+        processos = [item["processos"] for item in conjunto["result"]]
         tempos = [item["time"] for item in conjunto["result"]]
 
         thread_copy = []
         for i, tempo in enumerate(tempos):
-            thread_copy.append([threads[i]] * len(tempo))
+            thread_copy.append([processos[i]] * len(tempo))
         
         plt.scatter(y=thread_copy, x=tempos, marker='.')
-        plt.ylabel('Número de Threads')
+        plt.ylabel('Número de processos')
         plt.xlabel('Tempo (segundos)')
-        plt.title(f'Gráfico de disperção Threads vs Tempo({conjunto["cell_height"]}x{conjunto["cell_width"]})')
+        plt.title(f'Gráfico de disperção processos vs Tempo({conjunto["cell_height"]}x{conjunto["cell_width"]})')
         plt.savefig(f'result/Disperção thread x time({conjunto["cell_height"]}x{conjunto["cell_width"]}).png', bbox_inches="tight")
         
         
 def csv_data(dados):
     with open('output.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile)
-        writer.writerow(["cell_height", "cell_width", "threads", "time"])
+        writer.writerow(["cell_height", "cell_width", "processos", "time"])
 
         # Iterate through the JSON data and write to CSV
         for item in dados:
             cell_height = item["cell_height"]
             cell_width = item["cell_width"]
             for result in item["result"]:
-                threads = result["threads"]
+                processos = result["processos"]
                 for time in result["time"]:
-                    writer.writerow([cell_height, cell_width, threads, time])
+                    writer.writerow([cell_height, cell_width, processos, time])
 
 
 with open('result/dados.json', 'r') as arquivo_json:

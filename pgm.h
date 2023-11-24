@@ -18,6 +18,7 @@ typedef struct Pgm
 Pgm new_pgm(int, int);
 int getGrayColor(int);
 void pgm_file(char *, Pgm);
+void pgm_files(char *, Pgm );
 void printPgm(Pgm);
 void free_pgm(Pgm);
 int higher_number(Pgm);

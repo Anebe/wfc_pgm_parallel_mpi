@@ -177,13 +177,9 @@ void collapse(World world, Tileset tileset)
     int collapseValue = entropyPossibility[rand() % lowestTotalEntropy];
     free(entropyPossibility);
 
-
     for (int i = 0; i < tileset->qtd; i++)
-    {
         world->map[lowestY][lowestX].options[i] = 0;
-    }
-
-
+    
     world->map[lowestY][lowestX].options[collapseValue] = 1;
     world->map[lowestY][lowestX].collapsedValue = collapseValue;
     world->map[lowestY][lowestX].totalEntropy = 1;
@@ -194,11 +190,10 @@ void collapse(World world, Tileset tileset)
 void waveFuctionCollapse(Tileset tileset, World world)
 {
     make_border(world, tileset);
-    //all_to_all(world, tileset);
-    for (int i = 0; i < world->height * world->width; i++)
-    {
-        collapse(world, tileset);
-    }
+    //for (int i = 0; i < world->height * world->width; i++)
+    //{
+    //    collapse(world, tileset);
+    //}
 }
 
 void make_border(World world, Tileset tileset){
@@ -245,56 +240,6 @@ void make_border(World world, Tileset tileset){
             MPI_Recv(&other_collapseValue, 1, MPI_INT, rank + 1, 0, MPI_COMM_WORLD, MPI_STATUS_IGNORE);
         if(other_collapseValue != -1 && rank < size - 1){
             propagateCollapse(other_collapseValue, world->height, x, world, tileset);
-        }
-        
-        
-    }
-}
-
-void all_to_all(World w, Tileset tileset){
-    int rank,size;
-    MPI_Comm_rank(MPI_COMM_WORLD, &rank);
-    MPI_Comm_size(MPI_COMM_WORLD, &size);
-    
-    int rows_per_process = w->height / size;
-    int remaining_rows = w->height % size;
-
-    int initial_row = rows_per_process * rank;
-    int final_row = rows_per_process * (rank+1);
-    if(rank == size-1){
-        initial_row = (rows_per_process) * rank;
-        final_row = w->height;
-    }
-
-    int finals_rows[size], counter_row = 0;
-    MPI_Allgather(&final_row, 1, MPI_INT, finals_rows, 1, MPI_INT, MPI_COMM_WORLD);
-    for (int y = 0; y < w->height; y++)
-    {
-        if(y == finals_rows[counter_row]){
-            counter_row++;
-        }
-
-        
-        if(y + 1== finals_rows[counter_row] && counter_row < size -1){
-
-            for (int x = 0; x < w->width; x++)
-            {
-                MPI_Bcast(&w->map[y+1][x].collapsedValue, 1, MPI_INT, counter_row + 1, MPI_COMM_WORLD);
-                propagateCollapse(w->map[y+1][x].collapsedValue, y+1, x, w, tileset);
-
-            }
-        }
-        
-        
-        for (int x = 0; x < w->width; x++)
-        {
-            MPI_Bcast(&w->map[y][x].collapsedValue, 1, MPI_SHORT, counter_row, MPI_COMM_WORLD);
-            MPI_Bcast(&w->map[y][x].totalEntropy, 1, MPI_INT, counter_row, MPI_COMM_WORLD);
-            for (int i = 0; i < tileset->qtd; i++)
-            {
-                MPI_Bcast(&w->map[y][x].options[i], 1, MPI_INT, counter_row, MPI_COMM_WORLD);
-            }
-            
         }
         
         

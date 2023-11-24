@@ -13,7 +13,7 @@
 1695645790 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\cjson.h
 	<stddef.h>
 
-1700679887 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\estudos.c
+1700692673 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\estudos.c
 	<stdio.h>
 	<stdlib.h>
 	<mpi.h>
@@ -33,7 +33,7 @@
 	<string.h>
 	<mpi.h>
 
-1700689920 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.h
+1700741974 c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.h
 	<stdio.h>
 	<stdlib.h>
 	<stdbool.h>
@@ -55,12 +55,12 @@
 	"wfc.h"
 	"tile.h"
 
-1697472524 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\pgm.c
+1700753281 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\pgm.c
 	"pgm.h"
 
 1697313446 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\tile.c
 	"tile.h"
 
-1700679869 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.c
+1700748254 source:c:\users\gabriel\documents\codigo\paralela_pc\wfc_pgm_parallel_mpi\wfc.c
 	"wfc.h"
 
